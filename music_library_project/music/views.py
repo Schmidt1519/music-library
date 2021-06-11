@@ -48,3 +48,15 @@ class SongDetail(APIView):
         song = self.get_object(pk)
         song.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SongLikes(APIView):
+
+    def likes(self, request, pk):
+        song = self.get_object(pk)
+        serializer = SongSerializer(song, data=request.data)
+        if serializer.is_valid():
+            serializer.likes = serializer.likes + 1
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
