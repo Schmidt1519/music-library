@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
 
@@ -52,11 +53,22 @@ class SongDetail(APIView):
 
 class SongLikes(APIView):
 
-    def likes(self, request, pk):
-        song = self.get_object(pk)
-        serializer = SongSerializer(song, data=request.data)
+    def get_object(self, pk, title):
+        try:
+            return Song.objects.get(pk=pk, title=title)
+        except Song.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, title):
+        song = self.get_object(pk, title=title)
+        serializer = SongSerializer(song)
+        return Response(serializer.data)
+
+    def patch(self, request, pk, title):
+        song = self.get_object(pk, title=title)
+        data = {"likes": song.likes + int(1)}
+        serializer = SongSerializer(song, data=data, partial=True)
         if serializer.is_valid():
-            serializer.likes = serializer.likes + 1
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
