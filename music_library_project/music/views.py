@@ -12,16 +12,22 @@ from django.shortcuts import get_object_or_404
 class SongList(APIView):
 
     def get(self, request):
-        song = Song.objects.all()
-        serializer = SongSerializer(song, many=True)
-        return Response(serializer.data)
+        try:
+            song = Song.objects.all()
+            serializer = SongSerializer(song, many=True)
+            return Response(serializer.data)
+        except Song.DoesNotExist:
+            raise Http404
 
     def post(self, request):
-        serializer = SongSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = SongSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Song.DoesNotExist:
+            raise Http404
 
 
 class SongDetail(APIView):
@@ -33,22 +39,31 @@ class SongDetail(APIView):
             raise Http404
 
     def get(self, request, pk):
-        song = self.get_object(pk)
-        serializer = SongSerializer(song)
-        return Response(serializer.data)
+        try:
+            song = self.get_object(pk)
+            serializer = SongSerializer(song)
+            return Response(serializer.data)
+        except Song.DoesNotExist:
+            raise Http404
 
     def put(self, request, pk):
-        song = self.get_object(pk)
-        serializer = SongSerializer(song, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            song = self.get_object(pk)
+            serializer = SongSerializer(song, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Song.DoesNotExist:
+            raise Http404
 
     def delete(self, request, pk):
-        song = self.get_object(pk)
-        song.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            song = self.get_object(pk)
+            song.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Song.DoesNotExist:
+            raise Http404
 
 
 class SongLikes(APIView):
@@ -60,15 +75,21 @@ class SongLikes(APIView):
             raise Http404
 
     def get(self, request, pk, title):
-        song = self.get_object(pk, title=title)
-        serializer = SongSerializer(song)
-        return Response(serializer.data)
+        try:
+            song = self.get_object(pk, title=title)
+            serializer = SongSerializer(song)
+            return Response(serializer.data)
+        except Song.DoesNotExist:
+            raise Http404
 
     def patch(self, request, pk, title):
-        song = self.get_object(pk, title=title)
-        data = {"likes": song.likes + int(1)}
-        serializer = SongSerializer(song, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            song = self.get_object(pk, title=title)
+            data = {"likes": song.likes + int(1)}
+            serializer = SongSerializer(song, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Song.DoesNotExist:
+            raise Http404
