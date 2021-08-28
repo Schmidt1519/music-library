@@ -6,6 +6,3 @@ This is the backend API for my Music Library project whose frontend was created 
 * Django REST Framework
 * MySQL
 * Postman
-* HTML
-* CSS
-* Bootstrap
