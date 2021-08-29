@@ -6,3 +6,6 @@ This is the backend API for my Music Library project whose frontend was created 
 * Django REST Framework
 * MySQL
 * Postman
+
+## Related
+Link to Frontend: https://github.com/Schmidt1519/music-library-react
